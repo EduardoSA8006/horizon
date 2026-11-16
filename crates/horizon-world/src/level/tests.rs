@@ -2455,6 +2455,32 @@ fn tnt_duper_3856_client_neighbor_does_not_prime_or_remove_tnt() {
     assert_eq!(w.level.random.next_long(), random.next_long());
 }
 
+/// RedStoneWireBlock.neighborChanged works out the wire's power only when
+/// `!level.isClientSide()`: a client's wire keeps the power the server sent.
+/// A client that moved the redstone block away from its wire (the piston
+/// event it replays) turned the wire off itself, a tick before the server, so
+/// a piston clock's wire never showed lit (#16864). The server still does.
+#[test]
+fn a_client_wire_keeps_the_servers_power_when_a_neighbour_changes() {
+    for client in [true, false] {
+        let mut w = world!();
+        let f = w.f;
+        w.level.client_side = client;
+        let pos = BlockPos::new(0, 1, 0);
+        w.put(pos.offset(0, -1, 0), w.id("stone", &[]));
+        w.put(pos, w.id("redstone_wire", &[("power", "15")]));
+        let air = w.id("air", &[]);
+        f.behaviours.handle_neighbor_changed(
+            &mut w.level,
+            &mut w.ticks,
+            pos,
+            f.behaviours.block(air),
+        );
+        let expected = if client { "15" } else { "0" };
+        assert_eq!(w.prop(pos, "power"), expected, "client={client}");
+    }
+}
+
 #[test]
 fn tnt_duper_3856_client_placement_does_not_prime_tnt() {
     let mut w = world!();
