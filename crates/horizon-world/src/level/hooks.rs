@@ -413,8 +413,9 @@ impl<L: LevelAccess + ?Sized> Sim<'_, L> {
                         self.torch_notify_neighbors(pos, state);
                     }
                 }
+                // RedStoneWireBlock.affectNeighborsAfterRemoval takes a ServerLevel (#16864).
                 Class::RedstoneWire => {
-                    if !moved {
+                    if !moved && !self.level.is_client_side() {
                         for direction in Direction::ALL {
                             self.update_neighbors_at(rel(pos, direction), block);
                         }
