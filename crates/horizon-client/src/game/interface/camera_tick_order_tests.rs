@@ -16,7 +16,7 @@ use horizon_client::{chunk::Chunk, motion::PlayerMotion, pose::Pose};
 use horizon_core::geometry::Vec3;
 
 #[test]
-#[ignore = "needs prepared resources in HORIZON_TEST_RESOURCES"]
+#[ignore = "daily"]
 fn the_camera_eases_toward_a_new_glide_pose_from_the_next_tick() {
     let root = std::path::PathBuf::from(std::env::var_os("HORIZON_TEST_RESOURCES").unwrap());
     let settings = Settings::default();
